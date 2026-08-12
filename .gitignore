@@ -1,0 +1,24 @@
+# Local config (contains secrets)
+config/env
+config/cloudflared.yml
+.env
+.env.*
+
+# Archives
+*.tar.gz
+*.zip
+
+# Runtime & State
+*.log
+logs/
+state/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Editor
+.vscode/
+.idea/
+*~
+.DS_Store

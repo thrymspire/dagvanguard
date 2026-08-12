@@ -1,0 +1,41 @@
+# Local reverse proxy + static file server for dagvanguard
+# Listens locally – Cloudflare Tunnel provides public SSL termination and global routing.
+
+{
+    auto_https off
+    admin 127.0.0.1:2019
+}
+
+# Static showcase site + path-based microservice proxies
+:8080 {
+    encode gzip
+
+    # API Proxy
+    handle /api/* {
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    # MCP Proxy
+    handle /mcp/* {
+        reverse_proxy 127.0.0.1:8001
+    }
+
+    # Visualizer Proxy
+    handle /viz/* {
+        uri strip_prefix /viz
+        reverse_proxy 127.0.0.1:8050
+    }
+
+    # Static site fallback
+    handle {
+        root * /home/droid/.local/share/dagvanguard/static
+        file_server
+        try_files {path} /index.html
+    }
+}
+
+# Dedicated local healthcheck endpoint
+:8081 {
+    bind 127.0.0.1
+    respond "dagvanguard ok" 200
+}

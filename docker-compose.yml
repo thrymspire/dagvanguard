@@ -1,0 +1,161 @@
+services:
+  # =================================================================
+  # 1. Reverse Proxy & Static Host (Caddy)
+  # =================================================================
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["caddy"]
+    container_name: dagvanguard-caddy
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ./config/Caddyfile:/app/config/Caddyfile:ro
+      - ./static:/app/static:ro
+    environment:
+      - DOMAIN=${DOMAIN:-stacktaskservices.systems}
+    depends_on:
+      - api
+      - mcp
+      - visualizer
+    networks:
+      - dagnet
+
+  # =================================================================
+  # 2. DAG Substrate Domain & Ingest API (:8000)
+  # =================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["api"]
+    container_name: dagvanguard-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-dag}:${POSTGRES_PASSWORD:-dag_substrate}@postgres:5432/${POSTGRES_DB:-dag_substrate}
+      - REDIS_URL=redis://redis:6379/0
+      - DAGTKO_ROOT=/app/dagtko
+    volumes:
+      - ./config/env:/app/config/env:ro
+      - ../dagtko:/app/dagtko:ro
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - dagnet
+
+  # =================================================================
+  # 3. MCP Tool Server (:8001)
+  # =================================================================
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["mcp"]
+    container_name: dagvanguard-mcp
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - INGEST_URL=http://api:8000
+      - DAGTKO_ROOT=/app/dagtko
+    volumes:
+      - ./config/env:/app/config/env:ro
+      - ../dagtko:/app/dagtko:ro
+    depends_on:
+      - api
+    networks:
+      - dagnet
+
+  # =================================================================
+  # 4. Live Visualizer (:8050)
+  # =================================================================
+  visualizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["visualizer"]
+    container_name: dagvanguard-viz
+    restart: unless-stopped
+    ports:
+      - "8050:8050"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-dag}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dag_substrate}
+      - POSTGRES_DB=${POSTGRES_DB:-dag_substrate}
+      - VISUALIZER_PORT=8050
+      - DAGTKO_ROOT=/app/dagtko
+    volumes:
+      - ./config/env:/app/config/env:ro
+      - ../dagtko:/app/dagtko:ro
+    depends_on:
+      - postgres
+    networks:
+      - dagnet
+
+  # =================================================================
+  # 5. Cloudflare Zero Trust Tunnel
+  # =================================================================
+  tunnel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["tunnel"]
+    container_name: dagvanguard-tunnel
+    restart: unless-stopped
+    environment:
+      - CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
+    volumes:
+      - ./config/cloudflared.yml:/app/config/cloudflared.yml:ro
+    depends_on:
+      - caddy
+    networks:
+      - dagnet
+
+  # =================================================================
+  # 6. Database (PostgreSQL 16)
+  # =================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: dagvanguard-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-dag}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dag_substrate}
+      - POSTGRES_DB=${POSTGRES_DB:-dag_substrate}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../dagtko/foundation/sql:/docker-entrypoint-initdb.d:ro
+    networks:
+      - dagnet
+
+  # =================================================================
+  # 7. Cache (Redis 7)
+  # =================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: dagvanguard-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - dagnet
+
+networks:
+  dagnet:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:

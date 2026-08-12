@@ -1,0 +1,24 @@
+[Unit]
+Description=dagtko MCP Server (port 8001)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=8
+
+[Service]
+Type=simple
+WorkingDirectory=__DAGVANGUARD_ROOT__
+EnvironmentFile=-__DAGVANGUARD_ROOT__/config/env
+ExecStart=__DAGVANGUARD_ROOT__/scripts/start-dagtko.sh mcp
+Restart=always
+RestartSec=5
+
+MemoryMax=768M
+CPUQuota=150%
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dag-mcp
+
+[Install]
+WantedBy=default.target

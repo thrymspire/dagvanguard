@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DAG Vanguard · Turnkey Substrate Showcase & Edge Host</title>
+  <meta name="description" content="Turn-key, self-healing production host for DAG Substrate graphs, APIs, MCP tool servers, and visualizer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --surface: #121824;
+      --surface-elevated: #1a2232;
+      --border: #232d3f;
+      --border-focus: #3b82f6;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent: #0ea5e9;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 4rem;
+    }
+
+    a { color: var(--accent); text-decoration: none; transition: color 0.15s ease; }
+    a:hover { color: #38bdf8; text-decoration: underline; }
+
+    .header-bar {
+      border-bottom: 1px solid var(--border);
+      background: rgba(18, 24, 36, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.85rem 1.5rem;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding: 0 1.5rem;
+    }
+
+    .hero {
+      margin-bottom: 2.5rem;
+    }
+    .hero-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+    }
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 760px;
+    }
+
+    /* Live Health Banner */
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .status-card:hover {
+      border-color: #334155;
+      transform: translateY(-2px);
+    }
+    .status-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .status-card-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.18rem 0.55rem;
+      border-radius: 9999px;
+      background: rgba(100, 116, 139, 0.2);
+      color: var(--text-muted);
+    }
+    .status-pill.online {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+    .status-pill.warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status-card-val {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--font-mono);
+    }
+    .status-card-sub {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    /* Tabs & Panels */
+    .tab-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+    }
+    .tab-btn.active {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Visualizer Frame */
+    .graph-viewer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .viewer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .viewer-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      background: #243046;
+      border-color: #3b82f6;
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .svg-container {
+      width: 100%;
+      height: 600px;
+      background: #080c14;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .svg-container object, .svg-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    /* Service Endpoints Grid */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .service-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .service-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+    .endpoint-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      word-break: break-all;
+    }
+
+    /* Architecture Box */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .arch-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+    .arch-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+    .arch-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    code {
+      font-family: var(--font-mono);
+      background: rgba(148, 163, 184, 0.12);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    footer {
+      max-width: 1200px;
+      margin: 3rem auto 0;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header-bar">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">Δ</div>
+        <span>DAG VANGUARD</span>
+      </div>
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <span class="status-pill online" id="global-status-pill">
+          <span class="status-dot"></span> TURNKEY HOST LIVE
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 class="hero-title">DAG Substrate Production Vanguard</h1>
+      <p class="hero-subtitle">
+        Turnkey, self-healing host for the Ledger Set 250-node substrate, FastAPI domain surface, MCP tool services, and live Cytoscape visualizers over Cloudflare Edge.
+      </p>
+    </section>
+
+    <!-- Real-time Live Metrics -->
+    <div class="status-strip">
+      <div class="status-card" id="card-api">
+        <div class="status-card-header">
+          <span class="status-card-title">Domain API (:8000)</span>
+          <span class="status-pill online" id="pill-api"><span class="status-dot"></span> Checking</span>
+        </div>
+        <div class="status-card-val" id="val-nodes">250 Nodes</div>
+        <div class="status-card-sub" id="sub-edges">501 Edges · 90 Matrix Entries</div>
+      </div>
+
+      <div class="status-card" id="card-mcp">
+        <div class="status-card-header">
+          <span class="status-card-title">MCP Server (:8001)</span>
+          <span class="status-pill online" id="pill-mcp"><span class="status-dot"></span> Checking</span>
+        </div>
+        <div class="status-card-val" id="val-tools">18 Tools</div>
+        <div class="status-card-sub">Dynamic DAG & Ledger Surface</div>
+      </div>
+
+      <div class="status-card" id="card-viz">
+        <div class="status-card-header">
+          <span class="status-card-title">Visualizer (:8050)</span>
+          <span class="status-pill online" id="pill-viz"><span class="status-dot"></span> Checking</span>
+        </div>
+        <div class="status-card-val">Live Web UI</div>
+        <div class="status-card-sub">Symbolic Cytoscape Canvas</div>
+      </div>
+
+      <div class="status-card" id="card-tunnel">
+        <div class="status-card-header">
+          <span class="status-card-title">Edge Tunnel</span>
+          <span class="status-pill online" id="pill-tunnel"><span class="status-dot"></span> Cloudflare Ready</span>
+        </div>
+        <div class="status-card-val">Zero Open Ports</div>
+        <div class="status-card-sub">Automatic SSL · Outbound Only</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('graph')">DAG Graph Visualizer</button>
+      <button class="tab-btn" onclick="switchTab('endpoints')">Service Endpoints</button>
+      <button class="tab-btn" onclick="switchTab('architecture')">Edge Architecture</button>
+    </div>
+
+    <!-- Tab 1: DAG Graph Viewer -->
+    <section id="tab-graph" class="tab-panel active">
+      <div class="graph-viewer">
+        <div class="viewer-header">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700;">Substrate Topology & Symbol Set</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+              High-resolution vector visualization of the complete 7-layer DAG hierarchy.
+            </p>
+          </div>
+          <div class="viewer-actions">
+            <a href="/viz/" target="_blank" class="btn btn-primary">
+              Launch Live Cytoscape UI ↗
+            </a>
+            <a href="/assets/dag_graph.svg" target="_blank" class="btn">
+              Open Raw SVG ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="svg-container">
+          <object data="/assets/dag_graph.svg" type="image/svg+xml" style="width: 100%; height: 100%;">
+            <img src="/assets/dag_graph.svg" alt="DAG Graph Topology" />
+          </object>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Service Endpoints -->
+    <section id="tab-endpoints" class="tab-panel">
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-card-title">
+            <span>Static & Reverse Proxy</span>
+            <span class="status-pill online">Port 8080</span>
+          </div>
+          <p class="service-desc">Caddy web server hosting the vanguard dashboard and local path proxies.</p>
+          <div class="endpoint-row">
+            <span>https://stacktaskservices.systems</span>
+          </div>
+          <div class="endpoint-row">
+            <span>http://127.0.0.1:8080</span>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-title">
+            <span>Domain / Ingest API</span>
+            <span class="status-pill online">Port 8000</span>
+          </div>
+          <p class="service-desc">FastAPI append-only typed edge emitter, work orders, and Ollama grounding.</p>
+          <div class="endpoint-row">
+            <span>https://api.stacktaskservices.systems/docs</span>
+          </div>
+          <div class="endpoint-row">
+            <span>http://127.0.0.1:8000/health</span>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-title">
+            <span>MCP Tool Server</span>
+            <span class="status-pill online">Port 8001</span>
+          </div>
+          <p class="service-desc">Exposes 90-matrix ledger and Dynamic DAG tools for AI agent invocation.</p>
+          <div class="endpoint-row">
+            <span>https://mcp.stacktaskservices.systems/tools</span>
+          </div>
+          <div class="endpoint-row">
+            <span>http://127.0.0.1:8001/health</span>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-title">
+            <span>Live Web Visualizer</span>
+            <span class="status-pill online">Port 8050</span>
+          </div>
+          <p class="service-desc">Symbol-centric real-time graph visualization with touch & pinch support.</p>
+          <div class="endpoint-row">
+            <span>https://viz.stacktaskservices.systems</span>
+          </div>
+          <div class="endpoint-row">
+            <span>http://127.0.0.1:8050/api/data</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Edge Architecture -->
+    <section id="tab-architecture" class="tab-panel">
+      <div class="arch-grid">
+        <div class="arch-card">
+          <h3>Cloudflare Zero Trust Tunnel</h3>
+          <p>
+            Outbound encrypted tunnel to Cloudflare Edge. Eliminates inbound NAT/port-forwarding and survives carrier IP changes transparently.
+          </p>
+        </div>
+        <div class="arch-card">
+          <h3>Systemd Supervisor</h3>
+          <p>
+            Managed with user units (<code>systemd --user</code>) and user session lingering. Self-heals upon process crashes and terminal disconnects.
+          </p>
+        </div>
+        <div class="arch-card">
+          <h3>IP Watcher & DNS Auto-Sync</h3>
+          <p>
+            Runs on a 5-minute timer to detect mobile egress IP changes and notify webhooks or synchronize apex Cloudflare DNS.
+          </p>
+        </div>
+        <div class="arch-card">
+          <h3>Local Turnkey Fallbacks</h3>
+          <p>
+            Embedded placeholder server ensures full turnkey compliance with operational mock responses if standalone or database warming.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>DAG Vanguard · Host Domain: <code>stacktaskservices.systems</code></div>
+    <div>Hardware: Pixel 10 Pro XL · Debian 13 aarch64</div>
+  </footer>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    async function checkHealth() {
+      // Check API
+      try {
+        const r = await fetch('/api/health');
+        if (r.ok) {
+          const d = await r.json();
+          document.getElementById('pill-api').className = 'status-pill online';
+          document.getElementById('pill-api').innerHTML = '<span class="status-dot"></span> LIVE';
+          if (d.counts) {
+            document.getElementById('val-nodes').innerText = (d.counts.nodes || 250) + ' Nodes';
+            document.getElementById('sub-edges').innerText = (d.counts.edges || 501) + ' Edges · 90 Matrix';
+          }
+        }
+      } catch (e) {
+        document.getElementById('pill-api').className = 'status-pill warning';
+        document.getElementById('pill-api').innerText = 'Standby';
+      }
+
+      // Check MCP
+      try {
+        const r = await fetch('/mcp/health');
+        if (r.ok) {
+          const d = await r.json();
+          document.getElementById('pill-mcp').className = 'status-pill online';
+          document.getElementById('pill-mcp').innerHTML = '<span class="status-dot"></span> LIVE';
+          if (d.tools_registered) {
+            document.getElementById('val-tools').innerText = d.tools_registered + ' Tools';
+          }
+        }
+      } catch (e) {
+        document.getElementById('pill-mcp').className = 'status-pill warning';
+        document.getElementById('pill-mcp').innerText = 'Standby';
+      }
+
+      // Check Visualizer
+      try {
+        const r = await fetch('/viz/api/data');
+        if (r.ok) {
+          document.getElementById('pill-viz').className = 'status-pill online';
+          document.getElementById('pill-viz').innerHTML = '<span class="status-dot"></span> LIVE';
+        }
+      } catch (e) {
+        document.getElementById('pill-viz').className = 'status-pill warning';
+        document.getElementById('pill-viz').innerText = 'Standby';
+      }
+    }
+
+    checkHealth();
+    setInterval(checkHealth, 5000);
+  </script>
+</body>
+</html>

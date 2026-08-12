@@ -1,0 +1,24 @@
+[Unit]
+Description=dagtko Live Visualizer (port 8050)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=8
+
+[Service]
+Type=simple
+WorkingDirectory=__DAGVANGUARD_ROOT__
+EnvironmentFile=-__DAGVANGUARD_ROOT__/config/env
+ExecStart=__DAGVANGUARD_ROOT__/scripts/start-dagtko.sh visualizer
+Restart=always
+RestartSec=5
+
+MemoryMax=512M
+CPUQuota=100%
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dag-visualizer
+
+[Install]
+WantedBy=default.target

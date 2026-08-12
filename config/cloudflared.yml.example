@@ -1,0 +1,46 @@
+# Cloudflare Tunnel configuration for dagvanguard
+# Copy to config/cloudflared.yml and replace the token / tunnel id.
+
+# ------------------------------------------------------------
+# Easiest method (recommended): Tunnel Token
+# ------------------------------------------------------------
+# 1. In Cloudflare Dashboard → Zero Trust → Networks → Tunnels
+# 2. Create a tunnel named "dagvanguard-pixel"
+# 3. Copy the token that looks like:
+#    eyJhIjoi... (very long string)
+# 4. Paste it below.
+
+tunnel: <TUNNEL_ID_OR_LEAVE_BLANK_IF_USING_TOKEN>
+credentials-file: /home/droid/.cloudflared/<TUNNEL_ID>.json
+
+# If you use a Tunnel Token you can also run cloudflared with:
+#   cloudflared tunnel run --token <TOKEN>
+# The systemd unit supports both styles.
+
+ingress:
+  # Static site (Caddy on 8080)
+  - hostname: stacktaskservices.systems
+    service: http://127.0.0.1:8080
+
+  # Optional www
+  - hostname: www.stacktaskservices.systems
+    service: http://127.0.0.1:8080
+
+  # dagtko API
+  - hostname: api.stacktaskservices.systems
+    service: http://127.0.0.1:8000
+
+  # MCP server
+  - hostname: mcp.stacktaskservices.systems
+    service: http://127.0.0.1:8001
+
+  # Visualizer
+  - hostname: viz.stacktaskservices.systems
+    service: http://127.0.0.1:8050
+
+  # Catch-all (required)
+  - service: http_status:404
+
+# Optional but useful
+logfile: /home/droid/.local/share/dagvanguard/logs/cloudflared.log
+loglevel: info

@@ -1,0 +1,24 @@
+[Unit]
+Description=Cloudflare Tunnel for dagvanguard
+After=network-online.target dag-caddy.service
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=8
+
+[Service]
+Type=simple
+WorkingDirectory=__DAGVANGUARD_ROOT__
+EnvironmentFile=-__DAGVANGUARD_ROOT__/config/env
+ExecStart=__DAGVANGUARD_ROOT__/scripts/start-tunnel.sh
+Restart=always
+RestartSec=5
+
+MemoryMax=256M
+CPUQuota=50%
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dag-tunnel
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=dagvanguard public IP watcher (one-shot)
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=__DAGVANGUARD_ROOT__
+EnvironmentFile=-__DAGVANGUARD_ROOT__/config/env
+ExecStart=__DAGVANGUARD_ROOT__/scripts/ip-watch.py
+Nice=10
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dag-ipwatch
