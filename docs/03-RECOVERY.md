@@ -5,7 +5,7 @@
 - Terminal can be killed → services stay up (systemd --user + lingering)
 - Individual process crash → unit restarts automatically
 - Tunnel dies → unit restarts with back-off
-- Phone reboots → lingering user session + timers bring everything back
+- System reboots → lingering user session + timers bring everything back
 - Public IP changes → watcher notifies / optionally updates DNS
 
 ## Common recovery commands
@@ -49,7 +49,7 @@ cd ~/dagvanguard   # or wherever you cloned it
 2. Or switch to classic credentials:
    ```bash
    cloudflared tunnel login
-   cloudflared tunnel create dagvanguard-pixel
+   cloudflared tunnel create dagvanguard-tunnel
    # then edit config/cloudflared.yml
    ```
 

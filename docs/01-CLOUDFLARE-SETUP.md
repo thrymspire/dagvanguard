@@ -9,7 +9,7 @@ Follow these exact steps.
    If prompted, choose the Free plan.
 2. Networks → **Tunnels** → **Create a tunnel**.
 3. Select **Cloudflared**.
-4. Name it `dagvanguard-pixel` (or any name you like).
+4. Name it `dagvanguard-tunnel` (or any name you like).
 5. Click **Save tunnel**.
 
 ## 2. Get the Token (easiest method)
@@ -39,23 +39,20 @@ DOMAIN=stacktaskservices.systems
 
 Save the file.
 
-## 3. (Optional but recommended) Classic credentials file
+## 3. (Optional) Classic credentials file
 
 If you prefer the classic method instead of a token:
 
 ```bash
 cloudflared tunnel login          # opens browser, select the domain
-cloudflared tunnel create dagvanguard-pixel
+cloudflared tunnel create dagvanguard-tunnel
 # note the Tunnel ID it prints
-cloudflared tunnel route dns dagvanguard-pixel stacktaskservices.systems
-cloudflared tunnel route dns dagvanguard-pixel api.stacktaskservices.systems
-cloudflared tunnel route dns dagvanguard-pixel mcp.stacktaskservices.systems
-cloudflared tunnel route dns dagvanguard-pixel viz.stacktaskservices.systems
+cloudflared tunnel route dns dagvanguard-tunnel viz.stacktaskservices.systems
 ```
 
 Then edit `config/cloudflared.yml` with the Tunnel ID and credentials path.
 
-The systemd unit supports **both** styles. Token is simpler for a phone.
+The systemd unit supports **both** styles.
 
 ## 4. DNS records (automatic with Tunnel)
 
@@ -65,18 +62,14 @@ You should end up with:
 
 | Type  | Name | Content                     | Proxy |
 |-------|------|-----------------------------|-------|
-| CNAME | @    | `<tunnel-id>.cfargotunnel.com` | Proxied |
-| CNAME | api  | `<tunnel-id>.cfargotunnel.com` | Proxied |
-| CNAME | mcp  | `<tunnel-id>.cfargotunnel.com` | Proxied |
 | CNAME | viz  | `<tunnel-id>.cfargotunnel.com` | Proxied |
-| CNAME | www  | `<tunnel-id>.cfargotunnel.com` | Proxied |
 
 Because the records are Proxied (orange cloud), Cloudflare terminates SSL.  
-You never need a certificate on the Pixel.
+You never need a certificate on the local host.
 
 ## 5. Optional – API Token for automatic DNS updates
 
-If the phone’s public IP ever needs to be reflected in a classic A record (rare with Tunnel), create an API Token:
+If the host's public IP ever needs to be reflected in a classic A record (rare with Tunnel), create an API Token:
 
 1. My Profile → API Tokens → Create Token.
 2. Use the “Edit zone DNS” template.

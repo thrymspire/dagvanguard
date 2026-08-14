@@ -13,7 +13,7 @@ ExecStart=__DAGVANGUARD_ROOT__/scripts/start-dagtko.sh api
 Restart=always
 RestartSec=5
 
-# Resource soft limits suitable for Pixel
+# Resource soft limits
 MemoryMax=1G
 CPUQuota=200%
 

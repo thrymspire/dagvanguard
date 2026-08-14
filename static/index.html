@@ -383,56 +383,36 @@
 
   <main class="container">
     <section class="hero">
-      <h1 class="hero-title">DAG Substrate Production Vanguard</h1>
+      <h1 class="hero-title">DAG Substrate Visualizer</h1>
       <p class="hero-subtitle">
-        Turnkey, self-healing host for the Ledger Set 250-node substrate, FastAPI domain surface, MCP tool services, and live Cytoscape visualizers over Cloudflare Edge.
+        Interactive symbolic Cytoscape graph visualizer for DAG Substrate topologies and Ledger Set projections.
       </p>
     </section>
 
     <!-- Real-time Live Metrics -->
     <div class="status-strip">
-      <div class="status-card" id="card-api">
-        <div class="status-card-header">
-          <span class="status-card-title">Domain API (:8000)</span>
-          <span class="status-pill online" id="pill-api"><span class="status-dot"></span> Checking</span>
-        </div>
-        <div class="status-card-val" id="val-nodes">250 Nodes</div>
-        <div class="status-card-sub" id="sub-edges">501 Edges · 90 Matrix Entries</div>
-      </div>
-
-      <div class="status-card" id="card-mcp">
-        <div class="status-card-header">
-          <span class="status-card-title">MCP Server (:8001)</span>
-          <span class="status-pill online" id="pill-mcp"><span class="status-dot"></span> Checking</span>
-        </div>
-        <div class="status-card-val" id="val-tools">18 Tools</div>
-        <div class="status-card-sub">Dynamic DAG & Ledger Surface</div>
-      </div>
-
       <div class="status-card" id="card-viz">
         <div class="status-card-header">
-          <span class="status-card-title">Visualizer (:8050)</span>
-          <span class="status-pill online" id="pill-viz"><span class="status-dot"></span> Checking</span>
+          <span class="status-card-title">Live Visualizer</span>
+          <span class="status-pill online" id="pill-viz"><span class="status-dot"></span> Online</span>
         </div>
-        <div class="status-card-val">Live Web UI</div>
-        <div class="status-card-sub">Symbolic Cytoscape Canvas</div>
+        <div class="status-card-val">Cytoscape UI</div>
+        <div class="status-card-sub">Symbolic Graph Canvas</div>
       </div>
 
       <div class="status-card" id="card-tunnel">
         <div class="status-card-header">
-          <span class="status-card-title">Edge Tunnel</span>
-          <span class="status-pill online" id="pill-tunnel"><span class="status-dot"></span> Cloudflare Ready</span>
+          <span class="status-card-title">Edge Service</span>
+          <span class="status-pill online" id="pill-tunnel"><span class="status-dot"></span> Active</span>
         </div>
-        <div class="status-card-val">Zero Open Ports</div>
-        <div class="status-card-sub">Automatic SSL · Outbound Only</div>
+        <div class="status-card-val">viz.stacktaskservices.systems</div>
+        <div class="status-card-sub">TLS Encrypted Substrate Surface</div>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('graph')">DAG Graph Visualizer</button>
-      <button class="tab-btn" onclick="switchTab('endpoints')">Service Endpoints</button>
-      <button class="tab-btn" onclick="switchTab('architecture')">Edge Architecture</button>
     </div>
 
     <!-- Tab 1: DAG Graph Viewer -->
@@ -446,7 +426,7 @@
             </p>
           </div>
           <div class="viewer-actions">
-            <a href="/viz/" target="_blank" class="btn btn-primary">
+            <a href="https://viz.stacktaskservices.systems" target="_blank" class="btn btn-primary">
               Launch Live Cytoscape UI ↗
             </a>
             <a href="/assets/dag_graph.svg" target="_blank" class="btn">
@@ -462,102 +442,10 @@
         </div>
       </div>
     </section>
-
-    <!-- Tab 2: Service Endpoints -->
-    <section id="tab-endpoints" class="tab-panel">
-      <div class="services-grid">
-        <div class="service-card">
-          <div class="service-card-title">
-            <span>Static & Reverse Proxy</span>
-            <span class="status-pill online">Port 8080</span>
-          </div>
-          <p class="service-desc">Caddy web server hosting the vanguard dashboard and local path proxies.</p>
-          <div class="endpoint-row">
-            <span>https://stacktaskservices.systems</span>
-          </div>
-          <div class="endpoint-row">
-            <span>http://127.0.0.1:8080</span>
-          </div>
-        </div>
-
-        <div class="service-card">
-          <div class="service-card-title">
-            <span>Domain / Ingest API</span>
-            <span class="status-pill online">Port 8000</span>
-          </div>
-          <p class="service-desc">FastAPI append-only typed edge emitter, work orders, and Ollama grounding.</p>
-          <div class="endpoint-row">
-            <span>https://api.stacktaskservices.systems/docs</span>
-          </div>
-          <div class="endpoint-row">
-            <span>http://127.0.0.1:8000/health</span>
-          </div>
-        </div>
-
-        <div class="service-card">
-          <div class="service-card-title">
-            <span>MCP Tool Server</span>
-            <span class="status-pill online">Port 8001</span>
-          </div>
-          <p class="service-desc">Exposes 90-matrix ledger and Dynamic DAG tools for AI agent invocation.</p>
-          <div class="endpoint-row">
-            <span>https://mcp.stacktaskservices.systems/tools</span>
-          </div>
-          <div class="endpoint-row">
-            <span>http://127.0.0.1:8001/health</span>
-          </div>
-        </div>
-
-        <div class="service-card">
-          <div class="service-card-title">
-            <span>Live Web Visualizer</span>
-            <span class="status-pill online">Port 8050</span>
-          </div>
-          <p class="service-desc">Symbol-centric real-time graph visualization with touch & pinch support.</p>
-          <div class="endpoint-row">
-            <span>https://viz.stacktaskservices.systems</span>
-          </div>
-          <div class="endpoint-row">
-            <span>http://127.0.0.1:8050/api/data</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tab 3: Edge Architecture -->
-    <section id="tab-architecture" class="tab-panel">
-      <div class="arch-grid">
-        <div class="arch-card">
-          <h3>Cloudflare Zero Trust Tunnel</h3>
-          <p>
-            Outbound encrypted tunnel to Cloudflare Edge. Eliminates inbound NAT/port-forwarding and survives carrier IP changes transparently.
-          </p>
-        </div>
-        <div class="arch-card">
-          <h3>Systemd Supervisor</h3>
-          <p>
-            Managed with user units (<code>systemd --user</code>) and user session lingering. Self-heals upon process crashes and terminal disconnects.
-          </p>
-        </div>
-        <div class="arch-card">
-          <h3>IP Watcher & DNS Auto-Sync</h3>
-          <p>
-            Runs on a 5-minute timer to detect mobile egress IP changes and notify webhooks or synchronize apex Cloudflare DNS.
-          </p>
-        </div>
-        <div class="arch-card">
-          <h3>Local Turnkey Fallbacks</h3>
-          <p>
-            Embedded placeholder server ensures full turnkey compliance with operational mock responses if standalone or database warming.
-          </p>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer>
-    <div>DAG Vanguard · Host Domain: <code>stacktaskservices.systems</code></div>
-    <div>Hardware: Pixel 10 Pro XL · Debian 13 aarch64</div>
+    <div>DAG Vanguard Visualizer · Service: <code>viz.stacktaskservices.systems</code></div>
   </footer>
 
   <script>
@@ -569,39 +457,6 @@
     }
 
     async function checkHealth() {
-      // Check API
-      try {
-        const r = await fetch('/api/health');
-        if (r.ok) {
-          const d = await r.json();
-          document.getElementById('pill-api').className = 'status-pill online';
-          document.getElementById('pill-api').innerHTML = '<span class="status-dot"></span> LIVE';
-          if (d.counts) {
-            document.getElementById('val-nodes').innerText = (d.counts.nodes || 250) + ' Nodes';
-            document.getElementById('sub-edges').innerText = (d.counts.edges || 501) + ' Edges · 90 Matrix';
-          }
-        }
-      } catch (e) {
-        document.getElementById('pill-api').className = 'status-pill warning';
-        document.getElementById('pill-api').innerText = 'Standby';
-      }
-
-      // Check MCP
-      try {
-        const r = await fetch('/mcp/health');
-        if (r.ok) {
-          const d = await r.json();
-          document.getElementById('pill-mcp').className = 'status-pill online';
-          document.getElementById('pill-mcp').innerHTML = '<span class="status-dot"></span> LIVE';
-          if (d.tools_registered) {
-            document.getElementById('val-tools').innerText = d.tools_registered + ' Tools';
-          }
-        }
-      } catch (e) {
-        document.getElementById('pill-mcp').className = 'status-pill warning';
-        document.getElementById('pill-mcp').innerText = 'Standby';
-      }
-
       // Check Visualizer
       try {
         const r = await fetch('/viz/api/data');

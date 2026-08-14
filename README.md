@@ -1,16 +1,16 @@
 # dagvanguard
 
-**Turn-key, self-healing production host for DAG Substrate (dagtko) + static showcase & Cloudflare Edge Tunnel**  
-Designed for always-on Pixel 10 Pro XL (Debian 13 aarch64) and Linux/Docker environments.
+**Turn-key, self-healing production host for DAG Substrate (dagtko) + Cloudflare Edge Tunnel**  
+Designed for Debian Linux (aarch64 / x86_64) and Linux/Docker environments.
 
 - **Self-Healing Supervisor:** Survives terminal disconnects, process crashes, and system reboots via `systemd --user` with user session lingering.
 - **Cloudflare Edge Tunnel:** Free automatic SSL + zero open inbound ports on the device (traffic routed securely via outbound encrypted tunnel).
 - **Turnkey Standalone & Substrate Live Execution:** Automatic fallback to embedded mock/placeholder service with markers when standalone, and seamless discovery of full 250-node DAG substrate when linked.
 - **Docker & Docker Compose Ready:** Single-container and multi-container configurations included.
-- **Egress IP Watcher:** Dynamic detection of mobile network IP changes with optional Cloudflare DNS auto-sync and webhook notifications.
+- **Egress IP Watcher:** Dynamic detection of network IP changes with optional Cloudflare DNS auto-sync and webhook notifications.
 
-**Domain:** `stacktaskservices.systems`  
-**Target Hardware:** Pixel 10 Pro XL · Debian 13 (trixie) · aarch64 · systemd user units / Docker
+**Public Visualizer Endpoint:** `https://viz.stacktaskservices.systems`  
+**Host Environment:** Debian Linux · aarch64 · systemd user units / Docker
 
 ---
 
@@ -45,7 +45,7 @@ docker compose up -d --build
 ```
 
 ### Option B: Standalone All-In-One Container
-Run all microservices inside a single turnkey container:
+Run microservices inside a single turnkey container:
 
 ```bash
 # Build the image
@@ -69,15 +69,15 @@ docker run -d \
 
 | Component              | Port (Local) | Public Endpoint (via Cloudflare Tunnel) | Description |
 |------------------------|--------------|-----------------------------------------|-------------|
-| **Static Showcase Site** | `8080` (Caddy) | `https://stacktaskservices.systems` | Static visualizer showcase & path-based reverse proxy |
-| **dagtko Domain API**  | `8000`       | `https://api.stacktaskservices.systems` | FastAPI typed edge/event emitter, work orders & Ollama grounding |
-| **dagtko MCP Server**  | `8001`       | `https://mcp.stacktaskservices.systems` | MCP tool surface for AI agent DAG pipeline operations |
-| **Live Visualizer**    | `8050`       | `https://viz.stacktaskservices.systems` | Symbol-centric Cytoscape graph visualizer |
-| **Health Ping**        | `8081` (Caddy) | Internal / Local monitor | Local heartbeat verification |
-| **Cloudflare Tunnel**  | Outbound     | All public hostnames above | Encrypted outbound tunnel, automatic TLS termination |
-| **IP Watcher**         | Timer (5min) | — | Tracks public IP changes and synchronizes DNS |
+| **Live Visualizer**    | `8050`       | `https://viz.stacktaskservices.systems` | Symbol-centric Cytoscape graph visualizer (Public) |
+| **dagtko Domain API**  | `8000`       | Localhost Only (`127.0.0.1:8000`)       | FastAPI typed edge/event emitter, work orders & Ollama |
+| **dagtko MCP Server**  | `8001`       | Localhost Only (`127.0.0.1:8001`)       | MCP tool surface for AI agent DAG pipeline operations |
+| **Static Showcase**    | `8080` (Caddy) | Localhost Only (`127.0.0.1:8080`)     | Local dashboard & visualizer proxy |
+| **Health Ping**        | `8081` (Caddy) | Internal / Local monitor                | Local heartbeat verification |
+| **Cloudflare Tunnel**  | Outbound     | `https://viz.stacktaskservices.systems` | Encrypted outbound tunnel, automatic TLS termination |
+| **IP Watcher**         | Timer (5min) | —                                       | Tracks public IP changes |
 
-All local microservices bind to `127.0.0.1` / internal network. Only `cloudflared` communicates with the internet.
+All microservices bind exclusively to `127.0.0.1`. Only the Visualizer (`viz.stacktaskservices.systems`) is exposed over Cloudflare Edge.
 
 ---
 
@@ -92,7 +92,7 @@ When PostgreSQL or the native `dagtko` foundation is warming up or deployed stan
 ## Cloudflare Tunnel & SSL Configuration
 
 1. In Cloudflare Dashboard → **Zero Trust** → **Networks** → **Tunnels**:
-   - Create a tunnel named `dagvanguard-pixel`.
+   - Create a tunnel named `dagvanguard-tunnel`.
    - Copy your Tunnel Token (`eyJhIjoi...`).
 2. Add your token to `config/env`:
    ```bash
@@ -102,10 +102,7 @@ When PostgreSQL or the native `dagtko` foundation is warming up or deployed stan
    ```bash
    systemctl --user restart dag-tunnel.service
    ```
-4. Configure public hostnames in Cloudflare Zero Trust:
-   - `stacktaskservices.systems` → `http://127.0.0.1:8080`
-   - `api.stacktaskservices.systems` → `http://127.0.0.1:8000`
-   - `mcp.stacktaskservices.systems` → `http://127.0.0.1:8001`
+4. Configure public hostname in Cloudflare Zero Trust:
    - `viz.stacktaskservices.systems` → `http://127.0.0.1:8050`
 
 See [01-CLOUDFLARE-SETUP.md](docs/01-CLOUDFLARE-SETUP.md) and [02-DNS-AND-SSL.md](docs/02-DNS-AND-SSL.md) for step-by-step guides.

@@ -96,7 +96,7 @@ def update_cloudflare_dns(ip: str) -> bool:
         "type": "A",
         "name": domain,
         "content": ip,
-        "ttl": 120,          # low TTL while the phone is mobile
+        "ttl": 120,          # low TTL for dynamic egress
         "proxied": True,     # orange cloud – recommended with Tunnel
     }).encode()
 

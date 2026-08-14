@@ -6,21 +6,11 @@
     admin 127.0.0.1:2019
 }
 
-# Static showcase site + path-based microservice proxies
-:8080 {
+# Local static file server and visualizer proxy
+http://127.0.0.1:8080 {
     encode gzip
 
-    # API Proxy
-    handle /api/* {
-        reverse_proxy 127.0.0.1:8000
-    }
-
-    # MCP Proxy
-    handle /mcp/* {
-        reverse_proxy 127.0.0.1:8001
-    }
-
-    # Visualizer Proxy
+    # Visualizer Proxy (local only)
     handle /viz/* {
         uri strip_prefix /viz
         reverse_proxy 127.0.0.1:8050
@@ -35,7 +25,6 @@
 }
 
 # Dedicated local healthcheck endpoint
-:8081 {
-    bind 127.0.0.1
+http://127.0.0.1:8081 {
     respond "dagvanguard ok" 200
 }

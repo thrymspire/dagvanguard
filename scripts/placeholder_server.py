@@ -304,9 +304,9 @@ class PlaceholderHandler(BaseHTTPRequestHandler):
 
 def run():
     print(f"=== DAGVanguard Placeholder Server [{MODE.upper()}] ===")
-    print(f"  Listening on http://0.0.0.0:{PORT}")
+    print(f"  Listening on http://127.0.0.1:{PORT}")
     print(f"  Marker: [DAGVANGUARD_PLACEHOLDER_ACTIVE]")
-    server = HTTPServer(("0.0.0.0", PORT), PlaceholderHandler)
+    server = HTTPServer(("127.0.0.1", PORT), PlaceholderHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

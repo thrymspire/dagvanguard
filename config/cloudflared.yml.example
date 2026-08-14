@@ -5,7 +5,7 @@
 # Easiest method (recommended): Tunnel Token
 # ------------------------------------------------------------
 # 1. In Cloudflare Dashboard → Zero Trust → Networks → Tunnels
-# 2. Create a tunnel named "dagvanguard-pixel"
+# 2. Create a tunnel (e.g. "dagvanguard-tunnel")
 # 3. Copy the token that looks like:
 #    eyJhIjoi... (very long string)
 # 4. Paste it below.

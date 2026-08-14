@@ -1,8 +1,8 @@
-# 04 – Tuning for Pixel / battery / thermal
+# 04 – Resource & Thermal Tuning
 
 ## Memory & CPU limits already set
 
-The systemd units contain soft limits that are reasonable for a phone:
+The systemd units contain soft limits that are reasonable for edge-hosted environments:
 
 | Unit            | MemoryMax | CPUQuota |
 |-----------------|-----------|----------|
@@ -14,33 +14,29 @@ The systemd units contain soft limits that are reasonable for a phone:
 
 Adjust in the unit files under `systemd/` and re-run `./install.sh` (or copy the changed files into `~/.config/systemd/user/` and `daemon-reload`).
 
-## Battery considerations
+## Resource considerations
 
-- Cloudflare Tunnel keeps a persistent outbound connection. On mobile data this uses a small amount of power.
-- Prefer Wi-Fi when possible.
+- Cloudflare Tunnel keeps a persistent outbound connection.
 - The IP watcher is a short-lived oneshot every 5 minutes – negligible.
-- Postgres, Redis and Ollama are already running on your device; they dominate memory more than the vanguard layer.
+- Postgres, Redis and local models run locally; configure limits as appropriate for your host.
 
 ## Reducing footprint further
 
-If you only need the visualizer + static site:
+If you only need the visualizer:
 
 ```bash
 systemctl --user stop dag-api dag-mcp
 systemctl --user disable dag-api dag-mcp
 ```
 
-Or comment out the corresponding hostnames in the tunnel config.
-
 ## Watching resource use
 
 ```bash
-systemctl --user status dag-api dag-tunnel
+systemctl --user status dag-visualizer dag-tunnel
 ps aux --sort=-%mem | head -15
 free -h
 ```
 
 ## Thermal / performance
 
-The Pixel 10 Pro XL has a strong cooling solution, but long-running Python services + Ollama can still heat the device.  
-If you notice throttling, lower the CPUQuota values or run the heavier services only on demand.
+If you notice throttling or high resource usage on resource-constrained hosts, lower the CPUQuota values or run auxiliary services on demand.

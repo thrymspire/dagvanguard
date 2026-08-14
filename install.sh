@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # DAG Vanguard One-Time Installer
-# Safe to re-run. Designed for Debian 13 aarch64 on Pixel & standard Linux.
+# Safe to re-run. Designed for Debian Linux (aarch64 / x86_64).
 
 set -euo pipefail
 
